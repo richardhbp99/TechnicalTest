@@ -1,4 +1,5 @@
 from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
 from .models import Subject,Enrollment,Pensum
 from .serializers.subject_serializers import SubjectSerializer
 from .serializers.pensum_serializers import PensumSerializer
@@ -7,8 +8,10 @@ from rest_framework.exceptions import ValidationError, NotFound, PermissionDenie
 from rest_framework.response import Response
 from django.db.models import Avg
 
+
 # Create your views here.
 class SubjectListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
     queryset = Subject.objects.all()
     serializer_class = SubjectSerializer
 
@@ -16,13 +19,13 @@ class SubjectListView(generics.ListAPIView):
 class PensumListViews(generics.ListAPIView):
     queryset = Pensum.objects.all()
     serializer_class = PensumSerializer 
-
+    permission_classes = [IsAuthenticated]
 
 #1. Un estudiante se inscribe en una lista de materias
 class EnrollmentCreateViews(generics.CreateAPIView):
     queryset = Enrollment.objects.all()
     serializer_class= EnrollmentCreateSerializer
-
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         data_in = request.data
 
@@ -57,7 +60,7 @@ class EnrollmentCreateViews(generics.CreateAPIView):
 #2. Un estudiante puede obtener la lista de materias en las que está inscrito.
 class StudentEnrollmentsList(generics.ListAPIView):
     serializer_class = SubjectEstudentsSerializer
-
+    permission_classes = [IsAuthenticated]
     def get_queryset(self):
         
         student_id = self.kwargs['student_id']
@@ -74,7 +77,7 @@ class StudentEnrollmentsList(generics.ListAPIView):
 
 class StudentApprovedSubjectsList(generics.ListAPIView):
     serializer_class = SubjectEstudentsapprovedSerializer
-
+    permission_classes = [IsAuthenticated]
     def get(self,kwargs,student_id):
        
         student_id = student_id
@@ -99,7 +102,7 @@ class StudentApprovedSubjectsList(generics.ListAPIView):
 
 class StudentFailedSubjectsList(generics.ListAPIView):
     serializer_class = SubjectEstudentFailedSerializer
-
+    permission_classes = [IsAuthenticated]
     def get_queryset(self):
         student_id = self.kwargs['student_id']  
         return Enrollment.objects.filter(student_id=student_id, grade__lt=3, grade__isnull=False)
@@ -108,7 +111,7 @@ class StudentFailedSubjectsList(generics.ListAPIView):
 #9. Un profesor finaliza la materia (califica cada estudiante)
 class GradeUpdateView(generics.UpdateAPIView):
     serializer_class = GradeUpdateSerializer
-
+    permission_classes = [IsAuthenticated]
     def update(self, request,id_student,id_subject):
         data = request.data
         instance = Enrollment.objects.filter(subject_id=id_subject,student=id_student).first()
@@ -123,7 +126,7 @@ class GradeUpdateView(generics.UpdateAPIView):
 
 class SubjectEnrollmentGradeView(generics.ListAPIView):
     serializer_class = EnrollmentGradeSerializer
-
+    permission_classes = [IsAuthenticated]
     def get_queryset(self):
         subject_id = self.kwargs['subject_id']  
         return Enrollment.objects.filter(subject_id=subject_id)

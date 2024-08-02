@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework import generics
-
+from rest_framework.permissions import IsAuthenticated
 from Subjects.serializers.subject_serializers import SubjectSerializer
 from Teachers.serializers.teachers_serializers import StudentSubjectSerializer
 
@@ -14,7 +14,7 @@ from Students.models import Student
 
 class TeacherAssignedSubjectsList(generics.ListAPIView):
     serializer_class = SubjectSerializer
-
+    permission_classes = [IsAuthenticated]
     def get_queryset(self):
         # Obtén el ID del profesor de los parámetros de la URL
         teacher_id = self.kwargs['teacher_id']
@@ -27,7 +27,7 @@ class TeacherAssignedSubjectsList(generics.ListAPIView):
 
 class SubjectStudentsList(generics.ListAPIView):
     serializer_class = StudentSubjectSerializer
-
+    permission_classes = [IsAuthenticated]
     def get_queryset(self):
         # Obtén el ID de la materia de los parámetros de la URL
         subject_id = self.kwargs['subject_id']
