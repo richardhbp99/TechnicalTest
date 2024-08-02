@@ -22,7 +22,7 @@ class Enrollment(models.Model):
     student = models.ForeignKey('Students.Student', on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     date = models.DateField()
-
+    grade = models.FloatField(null=True)
 
     class Meta:
         db_table = 'T402Enrollment' 
@@ -30,4 +30,21 @@ class Enrollment(models.Model):
         verbose_name_plural = 'Enrollments'
 
     def __str__(self):
-        return f"{self.student.name} - {self.subject.name}"
+        return f"{self.student.person} - {self.subject.name}"
+    
+
+
+class Pensum(models.Model):
+    id_pensum = models.AutoField(primary_key=True, editable=False)
+    name = models.CharField(max_length=100)
+    start_year = models.PositiveIntegerField()
+    end_year = models.PositiveIntegerField()
+    subjects = models.ManyToManyField(Subject, related_name='pensums')
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        db_table = 'T403Pensum'
+        verbose_name = 'Pensum'
+        verbose_name_plural = 'Pensums'
