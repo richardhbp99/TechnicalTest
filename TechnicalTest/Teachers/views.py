@@ -9,6 +9,9 @@ from Students.models import Student
 # Create your views here.
 
 
+#6. Un profesor puede tener asignadas varias materias
+#7. Un profesor puede obtener las lista de materias a las que esta asignado
+
 class TeacherAssignedSubjectsList(generics.ListAPIView):
     serializer_class = SubjectSerializer
 
@@ -19,6 +22,8 @@ class TeacherAssignedSubjectsList(generics.ListAPIView):
         # Filtra las materias asignadas al profesor
         return Subject.objects.filter(teacher_id=teacher_id)
 
+
+#8. Un profesor puede ver la lista de estudiantes de cada una de sus materias
 
 class SubjectStudentsList(generics.ListAPIView):
     serializer_class = StudentSubjectSerializer

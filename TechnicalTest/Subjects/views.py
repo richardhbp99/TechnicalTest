@@ -2,7 +2,7 @@ from rest_framework import generics
 from .models import Subject,Enrollment,Pensum
 from .serializers.subject_serializers import SubjectSerializer
 from .serializers.pensum_serializers import PensumSerializer
-from .serializers.enrollment_serializers import EnrollmentCreateSerializer,SubjectEstudentsSerializer,SubjectEstudentsapprovedSerializer
+from .serializers.enrollment_serializers import EnrollmentCreateSerializer,SubjectEstudentsSerializer,SubjectEstudentsapprovedSerializer,SubjectEstudentFailedSerializer,GradeUpdateSerializer
 from rest_framework.exceptions import ValidationError, NotFound, PermissionDenied
 from rest_framework.response import Response
 from django.db.models import Avg
@@ -17,6 +17,8 @@ class PensumListViews(generics.ListAPIView):
     queryset = Pensum.objects.all()
     serializer_class = PensumSerializer 
 
+
+#1. Un estudiante se inscribe en una lista de materias
 class EnrollmentCreateViews(generics.CreateAPIView):
     queryset = Enrollment.objects.all()
     serializer_class= EnrollmentCreateSerializer
@@ -52,37 +54,67 @@ class EnrollmentCreateViews(generics.CreateAPIView):
 
         return Response(serializer.data)
 
-
+#2. Un estudiante puede obtener la lista de materias en las que está inscrito.
 class StudentEnrollmentsList(generics.ListAPIView):
     serializer_class = SubjectEstudentsSerializer
 
     def get_queryset(self):
-        # Obtén el ID del estudiante de los parámetros de la URL
+        
         student_id = self.kwargs['student_id']
-        # Filtra las inscripciones por el ID del estudiante
+       
         return Enrollment.objects.filter(student_id=student_id)
     
 
 
 
 
+#3. Un estudiante aprueba una materia con una nota igual o mayor a 3.0.
+
+#4 Un estudiante puede obtener la lista de sus materias aprobadas y su promediode puntaje general.
 
 class StudentApprovedSubjectsList(generics.ListAPIView):
     serializer_class = SubjectEstudentsapprovedSerializer
 
     def get(self,kwargs,student_id):
-        # Obtén el ID del estudiante de los parámetros de la URL
+       
         student_id = student_id
 
 
         enrollments = Enrollment.objects.filter(student=student_id, grade__isnull=False)
+        approved = enrollments.filter(grade__gte=3)
       
-        subject_ids = enrollments.values_list('subject_id', flat=True)
+        subject_ids = approved.values_list('subject_id', flat=True)
         average_grade = enrollments.aggregate(Avg('grade'))['grade__avg']
 
-        subjects = Subject.objects.filter(id_subject__in=subject_ids)
-        serializer = self.serializer_class(subjects,many=True)
+        # subjects = Subject.objects.filter(id_subject__in=subject_ids)
+        serializer = self.serializer_class(approved,many=True)
         data={}
         data['subjects'] =serializer.data
         data['average'] =average_grade
         return Response(data)
+    
+
+
+#5. Comprobar las materias que un estudiante ha reprobado.
+
+class StudentFailedSubjectsList(generics.ListAPIView):
+    serializer_class = SubjectEstudentFailedSerializer
+
+    def get_queryset(self):
+        student_id = self.kwargs['student_id']  
+        return Enrollment.objects.filter(student_id=student_id, grade__lt=3, grade__isnull=False)
+    
+
+#9. Un profesor finaliza la materia (califica cada estudiante)
+
+class GradeUpdateView(generics.UpdateAPIView):
+    serializer_class = GradeUpdateSerializer
+
+    def update(self, request,id_student,id_subject):
+        data = request.data
+        instance = Enrollment.objects.filter(subject_id=id_subject,student=id_student).first()
+        serializer = self.serializer_class(instance, data=data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data)

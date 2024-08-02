@@ -8,6 +8,7 @@ class PersonStudentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Person
+        fields = '__all__'
 
 class StudentSerializer(serializers.ModelSerializer):
     person = PersonStudentSerializer()

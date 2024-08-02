@@ -10,11 +10,19 @@ class SubjectEstudentsSerializer(serializers.ModelSerializer):
         model = Enrollment
         fields = ['subject']
 
-class SubjectEstudentsapprovedSerializer(serializers.ModelSerializer):
 
+class SubjectEstudentFailedSerializer(serializers.ModelSerializer):
+
+    subject = SubjectSerializer()
     class Meta:
-        model = Subject
-        fields = '__all__'
+        model = Enrollment
+        fields = ['subject','grade']
+
+class SubjectEstudentsapprovedSerializer(serializers.ModelSerializer):
+    subject = SubjectSerializer()
+    class Meta:
+        model = Enrollment
+        fields = ['subject','grade']
 
 
 
@@ -25,15 +33,12 @@ class EnrollmentCreateSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def validate(self, data):
-        # Accede al valor de 'grade' desde los datos recibidos
+      
         subject = data.get('subject')
         student = data.get('student')
 
-     
-
         prerequisites = subject.prerequisites.all()
 
-       
         for prerequisite in prerequisites:
 
             enrollment= Enrollment.objects.filter(student=student,subject=prerequisite).first()
@@ -47,3 +52,10 @@ class EnrollmentCreateSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("Student has not passed  "+prerequisite.name)
         
         return data
+    
+
+
+class GradeUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Enrollment
+        fields = ['grade']

@@ -7,5 +7,6 @@ urlpatterns = [
     path('create-enrollment',views.EnrollmentCreateViews.as_view(),name='create-enrollment'),
     path('students/subjets/<int:student_id>/',views.StudentEnrollmentsList.as_view(), name='student-enrollments-list'),
     path('students/approved-subjects/<int:student_id>/',views.StudentApprovedSubjectsList.as_view(), name='student-approved-subjects-list'),
-    
+    path('students/failed-subjects/<int:student_id>/', views.StudentFailedSubjectsList.as_view(), name='student-failed-subjects'),
+    path('subjects/update-grades/<int:id_subject>/<int:id_student>/', views.GradeUpdateView.as_view(), name='update-grades'),
 ]
