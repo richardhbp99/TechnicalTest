@@ -2,7 +2,7 @@ from rest_framework import generics
 from .models import Subject,Enrollment,Pensum
 from .serializers.subject_serializers import SubjectSerializer
 from .serializers.pensum_serializers import PensumSerializer
-from .serializers.enrollment_serializers import EnrollmentCreateSerializer,SubjectEstudentsSerializer,SubjectEstudentsapprovedSerializer,SubjectEstudentFailedSerializer,GradeUpdateSerializer
+from .serializers.enrollment_serializers import EnrollmentCreateSerializer,SubjectEstudentsSerializer,SubjectEstudentsapprovedSerializer,SubjectEstudentFailedSerializer,GradeUpdateSerializer,EnrollmentGradeSerializer
 from rest_framework.exceptions import ValidationError, NotFound, PermissionDenied
 from rest_framework.response import Response
 from django.db.models import Avg
@@ -106,7 +106,6 @@ class StudentFailedSubjectsList(generics.ListAPIView):
     
 
 #9. Un profesor finaliza la materia (califica cada estudiante)
-
 class GradeUpdateView(generics.UpdateAPIView):
     serializer_class = GradeUpdateSerializer
 
@@ -118,3 +117,13 @@ class GradeUpdateView(generics.UpdateAPIView):
         serializer.save()
 
         return Response(serializer.data)
+
+
+#10. Un profesor puede obtener las calificaciones de los estudiantes en sus materias
+
+class SubjectEnrollmentGradeView(generics.ListAPIView):
+    serializer_class = EnrollmentGradeSerializer
+
+    def get_queryset(self):
+        subject_id = self.kwargs['subject_id']  
+        return Enrollment.objects.filter(subject_id=subject_id)

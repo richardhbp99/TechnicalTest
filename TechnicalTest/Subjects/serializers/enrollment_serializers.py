@@ -2,7 +2,7 @@ from rest_framework import serializers
 from Subjects.models import Enrollment, Subject
 from Students.models import Student
 from .subject_serializers import SubjectSerializer
-
+from Students.serializers.students_serializers import StudentSerializer
 class SubjectEstudentsSerializer(serializers.ModelSerializer):
 
     subject = SubjectSerializer()
@@ -59,3 +59,12 @@ class GradeUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Enrollment
         fields = ['grade']
+
+
+
+class EnrollmentGradeSerializer(serializers.ModelSerializer):
+    student = StudentSerializer() 
+
+    class Meta:
+        model = Enrollment
+        fields = ['student', 'grade']  
