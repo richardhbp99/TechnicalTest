@@ -42,7 +42,7 @@ The API documentation is provided using Swagger, which offers a comprehensive ov
 1. **Clone the Repository**
 
    ```bash
-   git clone https://github.com/username/repository.git
+   git clone https://github.com/richardhbp99/TechnicalTest.git
    cd repository
    ```
 
